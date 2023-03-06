@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///example.sqlite"
 db = SQLAlchemy(app)
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
