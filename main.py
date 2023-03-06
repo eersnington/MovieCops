@@ -19,5 +19,9 @@ class Movie(db.Model):
 def index():
     return render_template('index.html')
 
+
+@app.route('/shows', methods=['GET', 'POST'])
+def shows():
+    return render_template('shows.html')
 if __name__ == '__main__':
     app.run(debug=True)
