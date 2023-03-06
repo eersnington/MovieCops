@@ -1,0 +1,19 @@
+@font-face{
+font-family: pfd;
+src: url('Fonts/PlayfairDisplay-BoldItalic.TTF');
+font-weight: bold;
+}
+
+
+head {
+    margin: 0;
+}
+h1{
+    font-family: pfd
+}
+p{
+    font-family: 'Helvetica';
+}
+body {
+    margin: 20;
+}
