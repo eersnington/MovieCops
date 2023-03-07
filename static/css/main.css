@@ -1,14 +1,12 @@
 @font-face{
 font-family: pfd;
-src: url('Fonts/PlayfairDisplay-BoldItalic.TTF');
+src: url('Fonts/PlayfairDisplay-BoldItalic.ttf');
 font-weight: bold;
 }
-
-
 head {
-    margin: 0;
+    margin: 20;
 }
-h1{
+h3{
     font-family: pfd
 }
 p{
