@@ -1,17 +1,14 @@
-@font-face{
-font-family: pfd;
-src: url('Fonts/PlayfairDisplay-BoldItalic.ttf');
-font-weight: bold;
-}
-head {
-    margin: 20;
-}
-h3{
-    font-family: pfd
-}
-p{
-    font-family: 'Helvetica';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Roboto:wght@500;900&display=swap');* {
+    padding: 0%;
+    margin: 0%;
+    box-sizing: border-box;
 }
 body {
-    margin: 20;
+    width: 100%;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+h3{
+    font-family: 'Playfair Display', serif;
 }
