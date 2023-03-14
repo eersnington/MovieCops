@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,6 +17,9 @@ class Movie(db.Model):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == "POST":
+        searchedTerm = request.form['search']
+        return render_template('shows.html', search=searchedTerm)
     return render_template('index.html')
 
 @app.route('/shows', methods=['GET', 'POST'])

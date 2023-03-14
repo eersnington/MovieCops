@@ -1,11 +1,46 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Index</title>
+<title>Shows</title>
 {% endblock %}
-
 {% block body %}
 <h2>Airing Now</h2>
-
-
+<!-- Grid with cards-->
+  <div class="container">
+    <!-- Row starts-->
+  <div class="row">
+    <div class="col-lg">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{ url_for('static', filename='images/card1.jpg') }}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">John Wick</h5>
+          <p class="card-text">Action/Thriller</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{ url_for('static', filename='images/card2.jpg') }}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">Pathaan</h5>
+          <p class="card-text">Action/Thriller</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg">
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{ url_for('static', filename='images/card3.jpg') }}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">Tu Jhoothi Main Makkaar</h5>
+          <p class="card-text">Romantic/Comedy</p>
+          <a href="#" class="btn btn-primary">Book Now</a>
+        </div>
+      </div>
+    </div>
+  <!-- Row Ends-->
+  </div>
+  </div>
 {% endblock %}
+
