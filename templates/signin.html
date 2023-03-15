@@ -34,8 +34,10 @@
       <div class="row ">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com"
-              required>
+            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com" required>
+              <div class="invalid-feedback">
+                Please enter your email.
+              </div>
             <label for="floatingInput">Email address</label>
           </div>
         </div>
@@ -44,8 +46,10 @@
       <div class="row">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"
-              required>
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required>
+              <div class="invalid-feedback">
+                Please enter your password.
+              </div>
             <label for="floatingPassword">Password</label>
           </div>
         </div>
@@ -59,7 +63,7 @@
     </div>
     <br>
     {% if error %}
-    s<p>{{ error }}</p>
+    <p>{{ error }}</p>
     {% endif %}
   </form>
 </main>
