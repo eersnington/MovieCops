@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Sign Up</title>
+<style>
+  .form-signup {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px;
+    margin: auto;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="form-signup">
+  <form action="{{ url_for('signup') }}" method="post" novalidate>
+    <div class="container">
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <h1 class="h3 mb-3 fw-normal">Sign up to MoviePolis <img src="static/images/movie-ticket.png" width="50"
+              height="50" alt=""> </h1>
+        </div>
+      </div>
+      <br>
+      <div class="row ">
+        <div class="col-sm">
+          <div class="form-floating">
+            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com"
+              required>
+            <div class="invalid-feedback">
+              Please enter your email.
+            </div>
+            <label for="floatingInput">Email address</label>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <div class="form-floating">
+            <input type="text" name="name" class="form-control" id="floatingName" placeholder="Name"
+              required>
+              <div class="invalid-feedback">
+                Please enter your name.
+              </div>
+            <label for="floatingName">Name</label>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="form-floating">
+            <select class="form-select" name="lang" id="lang">
+                <option selected>Select your preferred language</option>
+                <option value="Eng">English</option>
+                <option value="Hin">Hindi</option>
+                <option value="Tam">Tamil</option>
+                <option value="Mal">Malayalam</option>
+              </select>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm">
+          <div class="form-floating">
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"
+              required>
+            <div class="invalid-feedback">
+              Please enter your password.
+            </div>
+            <label for="floatingPassword">Password</label>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="col-6 mt-4 mt-xxl-0 w-auto h-auto">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <ul class="list-unstyled mb-0">
+            <li class="requirements leng">
+              Your password must have at least 8 chars
+            </li>
+            <li class="requirements big-letter">
+              Your password must have at least 1 capital letter.
+            </li>
+            <li class="requirements num">
+              Your password must have at least 1 number.
+            </li>
+            <li class="requirements special-char">
+              Your password must have at least 1 special char.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-sm">
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign Up</button>
+      </div>
+    </div>
+    <br>
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+    <p style="color:green;">{{ success }}</p>
+    <br>
+    <div class="col-sm">
+      <a href="{{ url_for('login')}}" class="w-100 btn btn-lg btn-outline-primary" role="button">Sign In</a>
+    </div>
+    {% endif %}
+  </form>
+</main>
+{% endblock %}

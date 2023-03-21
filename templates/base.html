@@ -41,7 +41,11 @@
             <a class="nav-link" href="{{ url_for('shows') }}">Shows</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">User</a>
+            {% if name %}
+              <a class="nav-link"> {{ name }}</a>
+            {% else %}
+              <a class="nav-link" href="{{ url_for('login') }}">User</a>
+            {% endif %}
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
@@ -55,6 +59,7 @@
             </ul>
           </li>
         </ul>
+        <br>
         <form class="d-flex" method="post">
           <!-- POST -->
           <input class="form-control mr-sm-2" type="search" placeholder="Search Shows" aria-label="Search"
