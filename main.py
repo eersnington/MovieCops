@@ -41,15 +41,39 @@ class User(db.Model):
         return f"User(email='{self.email}', name='{self.name}', password='{self.password}', language='{self.language}')"
 
 
+# class Booking(db.Model):
+#     movie_id = ""
+#     booking_id = ""
+#     number = ""
+#     venue = ""
+#     timings = ""
+#
+#
+# class Shows(db.Model):
+#     show_id = ""
+#     seats = ""
+#     timings = ""
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if logged_in:
-        print(userData)
         return render_template('index.html', name=userData["name"])
     if request.method == "POST":
         searched_term = request.form['search']
         return render_template('shows.html', search=searched_term)
     return render_template('index.html')
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    global logged_in, userData
+    if logged_in:
+        logged_in = False
+        userData = {
+            "name": "",
+            "email": "",
+            "language": ""
+        }
+    return redirect(url_for('index'))
 
 
 @app.route('/shows', methods=['GET', 'POST'])
