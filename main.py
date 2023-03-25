@@ -10,14 +10,18 @@ db = SQLAlchemy(app)
 Bootstrap(app)
 
 logged_in = False
+admin_user = False
 userData = {
     "name": "",
     "email": "",
     "language": ""
 }
 
+"""
+    Models for Tables
+"""
 
-# Models for tables
+
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -54,6 +58,11 @@ class User(db.Model):
 #     seats = ""
 #     timings = ""
 
+"""
+    Endpoints 
+"""
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if logged_in:
@@ -62,6 +71,18 @@ def index():
         searched_term = request.form['search']
         return render_template('shows.html', search=searched_term)
     return render_template('index.html')
+
+
+# ADMIN PAGE
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if logged_in and admin:
+        return render_template('admin.html', name=userData["name"], admin=True)
+    if request.method == "POST":
+        searched_term = request.form['search']
+        return render_template('shows.html', search=searched_term)
+    return render_template('admin.html')
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -90,9 +111,9 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return render_template('login.html', error='User not found')
+            return render_template('adminLogin.html', error='User not found')
         if user.password != password:
-            return render_template('login.html', error='Invalid password')
+            return render_template('adminLogin.html', error='Invalid password')
 
         logged_in = True
 
@@ -102,6 +123,33 @@ def login():
 
         return redirect(url_for('index'))
     return render_template('login.html')
+
+
+# ADMIN PAGE
+@app.route('/admin/login', methods=['GET', 'POST'])
+def adminLogin():
+    global logged_in, admin_user
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return render_template('adminLogin.html', error='User not found')
+        if user.password != password:
+            return render_template('adminLogin.html', error='Invalid password')
+        if user.email != 'glowstonedev@gmail.com':  # Admin User
+            return render_template('login.html', error='You do not have admin privileges!')
+
+        logged_in = True
+        admin_user = True
+
+        userData["name"] = user.name
+        userData["email"] = user.email
+        userData["language"] = user.language
+
+        return redirect(url_for('admin', admin=True))
+    return render_template('adminLogin.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
