@@ -1,6 +1,6 @@
 import re
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, abort, Response
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 
@@ -22,17 +22,19 @@ userData = {
 """
 
 
+# TODO: Implement search post in evert endpoint
+
 class Movie(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    movie_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     rating = db.Column(db.Numeric(precision=2, scale=1), nullable=False)
     tags = db.Column(db.String(50), nullable=False)
-    ticketPrice = db.Column(db.Integer, default=250, nullable=False)
     language = db.Column(db.String(50), nullable=False)
+    image_src = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
-        return f"Movie(id={self.id}, name='{self.name}', rating={self.password}, tags='{self.tags}, " \
-               f"ticketPrice={self.ticketPrice}, language='{self.language}')"
+        return f"Movie(movie_id={self.movie_id}, name='{self.name}', rating={self.rating}, tags='{self.tags}, " \
+               f" language='{self.language}, image_src='{self.image_src}')"
 
 
 class User(db.Model):
@@ -45,6 +47,28 @@ class User(db.Model):
         return f"User(email='{self.email}', name='{self.name}', password='{self.password}', language='{self.language}')"
 
 
+class Venue(db.Model):
+    venue_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"Venue(venue_id={self.venue_id}, name='{self.name}', location='{self.location}')"
+
+
+class Shows(db.Model):
+    show_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    movie_id = db.Column(db.Integer, db.ForeignKey(Movie.movie_id), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey(Venue.venue_id), nullable=False)
+    ticket_price = db.Column(db.Integer, default=250, nullable=False)
+    seats = db.Column(db.Integer, nullable=False)
+    timings = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"Shows(show_id={self.show_id}, movie_id={self.movie_id}, venue_id={self.venue_id}, " \
+               f"ticket_price={self.ticket_price}, seats={self.seats}, timings='{self.timings}')"
+
+
 # class Booking(db.Model):
 #     movie_id = ""
 #     booking_id = ""
@@ -53,42 +77,31 @@ class User(db.Model):
 #     timings = ""
 #
 #
-# class Shows(db.Model):
-#     show_id = ""
-#     seats = ""
-#     timings = ""
+
 
 """
-    Endpoints 
+    USER Endpoints 
 """
 
 
+# USER MAIN PAGE
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if logged_in:
-        return render_template('index.html', name=userData["name"])
+        return render_template('index.html', userData=userData)
     if request.method == "POST":
         searched_term = request.form['search']
-        return render_template('shows.html', search=searched_term)
+        return render_template('shows.html', search=searched_term, userData=userData, admin=True)
     return render_template('index.html')
 
 
-# ADMIN PAGE
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    if logged_in and admin:
-        return render_template('admin.html', name=userData["name"], admin=True)
-    if request.method == "POST":
-        searched_term = request.form['search']
-        return render_template('shows.html', search=searched_term)
-    return render_template('admin.html')
-
-
+# LOGOUT
 @app.route('/logout', methods=['GET'])
 def logout():
-    global logged_in, userData
+    global logged_in, userData, admin_user
     if logged_in:
         logged_in = False
+        admin_user = False
         userData = {
             "name": "",
             "email": "",
@@ -97,11 +110,19 @@ def logout():
     return redirect(url_for('index'))
 
 
+# SHOWS
 @app.route('/shows', methods=['GET', 'POST'])
 def shows():
-    return render_template('shows.html')
+    movies_list = Movie.query.all()
+    # TODO: SORT SHOWS BASED ON LANGUAGE || IF USER IS SIGNED IN, SELECT CHOSEN LANGUAGE
+    if logged_in and not admin_user:
+        return render_template('shows.html', userData=userData, movies=movies_list)
+    if admin_user:
+        return render_template('shows.html', userData=userData, movies=movies_list, admin=True)
+    return render_template('shows.html', movies=movies_list)
 
 
+# USER LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     global logged_in
@@ -125,33 +146,7 @@ def login():
     return render_template('login.html')
 
 
-# ADMIN PAGE
-@app.route('/admin/login', methods=['GET', 'POST'])
-def adminLogin():
-    global logged_in, admin_user
-    if request.method == "POST":
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-
-        if not user:
-            return render_template('adminLogin.html', error='User not found')
-        if user.password != password:
-            return render_template('adminLogin.html', error='Invalid password')
-        if user.email != 'glowstonedev@gmail.com':  # Admin User
-            return render_template('login.html', error='You do not have admin privileges!')
-
-        logged_in = True
-        admin_user = True
-
-        userData["name"] = user.name
-        userData["email"] = user.email
-        userData["language"] = user.language
-
-        return redirect(url_for('admin', admin=True))
-    return render_template('adminLogin.html')
-
-
+# USER SIGNUP
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == "POST":
@@ -179,6 +174,165 @@ def signup():
 
         return render_template('signup.html', success='Successfully signed up!')
     return render_template('signup.html')
+
+
+"""
+    ADMIN Endpoints 
+"""
+
+
+# ADMIN PAGE
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if not admin_user:
+        return redirect(url_for('index'))
+    if request.method == "POST":
+        searched_term = request.form['search']
+        return render_template('shows.html', search=searched_term, userData=userData, admin=True)
+    return render_template('admin.html', userData=userData, admin=True)
+
+
+# ADMIN LOGIN
+@app.route('/admin/login', methods=['GET', 'POST'])
+def adminLogin():
+    global logged_in, admin_user
+    if admin_user:
+        return redirect(url_for('admin'))
+
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return render_template('adminLogin.html', error='User not found')
+        if user.password != password:
+            return render_template('adminLogin.html', error='Invalid password')
+        if user.email != 'glowstonedev@gmail.com':  # Admin User
+            return render_template('login.html', error='You do not have admin privileges!')
+
+        logged_in = True
+        admin_user = True
+
+        userData["name"] = user.name
+        userData["email"] = user.email
+        userData["language"] = user.language
+
+        return redirect(url_for('admin'))
+    return render_template('adminLogin.html')
+
+
+# ADMIN DASHBOARD (CREATE VENUES AND SHOWS)
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    if not admin_user:
+        return redirect(url_for('index'))
+    if request.method == "POST":
+        if request.form['submit'] == "Create Venue":
+            venue_name = request.form['venueName']
+            venue_location = request.form['venueLocation']
+
+            new_venue = Venue(name=venue_name, location=venue_location)
+            db.session.add(new_venue)
+            db.session.commit()
+        if request.form['submit'] == "Add Show":
+
+            movie_name = request.form['movieName']
+            movie_rating = request.form['movieRating']
+            movie_tags = request.form['movieTags']
+            movie_language = request.form['movieLanguage']
+            movie_image = "images/" + request.form['imageFile']
+
+            new_movie = Movie(name=movie_name, rating=float(movie_rating), tags=movie_tags, language=movie_language,
+                              image_src=movie_image)
+            db.session.add(new_movie)
+            db.session.commit()
+
+            movie_timings = request.form['showTimings']
+            ticket_price = request.form['ticketPrice']
+            venue_id = request.form['venueId']
+
+            new_show = Shows(movie_id=new_movie.movie_id, venue_id=venue_id, ticket_price=ticket_price, seats=50, timings=movie_timings)
+            db.session.add(new_show)
+            db.session.commit()
+
+    venue_list = Venue.query.all()
+    shows_list = Shows.query.all()
+    movies_list = Movie.query.all()
+    return render_template('dashboard.html', userData=userData, admin=True, venues=venue_list, shows=shows_list,
+                           movies=movies_list)
+
+
+@app.route('/admin/dashboard/venue/<response>/<int:venue_id>', methods=['GET', 'POST'])
+def venueRequest(response, venue_id):
+    if not admin_user:
+        return redirect(url_for('index'))
+    if request.method == "GET":
+        if response == "delete":
+            venue = Venue.query.get_or_404(venue_id)
+
+            Shows.query.filter_by(venue_id=venue.venue_id).delete()
+            db.session.delete(venue)
+            db.session.commit()
+    if request.method == "POST":
+        if response == "edit":
+            venue_name = request.form['venueName']
+            venue_location = request.form['venueLocation']
+
+            venue = Venue.query.filter_by(venue_id=venue_id).first()
+
+            if not venue:
+                abort(Response('Venue Not Found'))
+
+            venue.name = venue_name
+            venue.location = venue_location
+
+            db.session.commit()
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/admin/dashboard/show/<response>/<int:show_id>', methods=['GET', 'POST'])
+def showRequest(response, show_id):
+    if not admin_user:
+        return redirect(url_for('index'))
+    if request.method == "GET":
+        if response == "delete":
+            show = Shows.query.get_or_404(show_id)
+            movie = Movie.query.get_or_404(show.movie_id)
+            db.session.delete(show)
+            db.session.delete(movie)
+            db.session.commit()
+    if request.method == "POST":
+        if response == "edit":
+            movie_name = request.form['showName']
+            movie_rating = request.form['showRating']
+            movie_tags = request.form['showTags']
+            movie_language = request.form['showLanguage']
+
+            show = Shows.query.filter_by(show_id=show_id).first()
+            if not show:
+                abort(Response('Show Not Found'))
+
+            movie = Movie.query.filter_by(movie_id=show.movie_id).first()
+
+            movie.name = movie_name
+            movie.rating = movie_rating
+            movie.tags = movie_tags
+            movie.language = movie_language
+
+            movie_id = request.form['movieId']
+            show_timings = request.form['showTimings']
+            ticket_price = request.form['ticketPrice']
+            venue_id = request.form['venueId']
+
+            show.movie_id = movie_id
+            show.venue_id = venue_id
+            show.ticket_price = ticket_price
+            show.timings = show_timings
+
+            db.session.commit()
+
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':

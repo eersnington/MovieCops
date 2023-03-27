@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +17,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
     integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
     crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
   <!-- Other Stylesheets-->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   {% block head %}{% endblock %}
@@ -36,43 +34,66 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only"></span></a>
+            {% if admin %}
+                <a class="nav-link" href="{{ url_for('admin') }}">Home <span class="sr-only"></span></a>
+              {% else %}
+                <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only"></span></a>
+              {% endif %}
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('shows') }}">Shows</a>
           </li>
           <li class="nav-item dropdown">
-            {% if name %}
+            {% if userData %}
               <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              {{ name }}
+              {{ userData["name"] }}
               </a>
-              <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('index') }}">Bookings</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('logout') }}" id="Logout">Logout</a></li>
-              </ul>
+              {% if admin %}
+                <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                  <li><a class="dropdown-item" href="{{ url_for('logout') }}" id="adminLogout">Logout</a></li>
+                </ul>
+              {% else %}
+                <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                  <li><a class="dropdown-item" href="{{ url_for('index') }}">Bookings</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('logout') }}" id="Logout">Logout</a></li>
+                </ul>
+              {% endif %}
             {% else %}
               <a class="nav-link" href="{{ url_for('login') }}">Login</a>
             {% endif %}
           </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="locationDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
-              Location
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="locationDropdown">
-              <li><a class="dropdown-item" href="#">Chennai</a></li>
-              <li><a class="dropdown-item" href="#">Kochi</a></li>
-              <li><a class="dropdown-item" href="#">Bangalore</a></li>
-            </ul>
-          </li>
+          {% if admin %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Admin Panel
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="locationDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a class="dropdown-item" href="#">Summary</a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="locationDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Location
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="locationDropdown">
+                <li><a class="dropdown-item" href="#">Chennai</a></li>
+                <li><a class="dropdown-item" href="#">Kochi</a></li>
+                <li><a class="dropdown-item" href="#">Bangalore</a></li>
+              </ul>
+            </li>
+          {% endif %}
         </ul>
         <br>
         <form class="d-flex" method="post">
           <!-- POST -->
           <input class="form-control mr-sm-2" type="search" placeholder="Search Shows" aria-label="Search"
             name="search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
+          <button class="btn btn-outline-success" type="submit" name="submit" value="search">Search</button>
         </form>
       </div>
     </div>

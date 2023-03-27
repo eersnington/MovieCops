@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Admin Dashboard</title>
+<style>
+  .dashboard {
+    width: 100%;
+    padding: 15px;
+    margin: auto;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard">
+  <!-- -->
+  <!-- Venue Cards-->
+  <!-- -->
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#venueCreateModal">
+      + Add Venues
+  </button>
+  <br><br>
+  {% if venues %}
+    {% for venue in venues %}
+      <div class="card text-dark border-primary" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title text-primary">{{venue.name}}</h5>
+          <p class="card-text">Location: {{venue.location}}</p>
+          <p class="card-text">Shows:</p>
+            {% if shows %}
+              {% for show in shows %}
+                {% if show.venue_id == venue.venue_id %}
+                  <!-- -->
+                  <!-- Show Edit Form-->
+                  <!-- -->
+                  <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#showsEditModal{{show.show_id}}">
+                    Show {{show.show_id }}
+                  </button>
+                  {% for movie in movies %}
+                    {% if show.movie_id == movie.movie_id %}
+                      <div class="modal fade " id="showsEditModal{{show.show_id }}" tabindex="-1" aria-labelledby="showsEditModalLabel{{show.show_id}}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="showsEditModalLabel{{show.show_id}}">Edit Show</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <form action="/admin/dashboard/show/edit/{{show.show_id}}" method="POST" id="showEditForm">
+                                <div class="row mb-3">
+                                  <label for="showNameEditInput" class="col-sm-2 col-form-label">Name</label>
+                                  <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="showNameEditInput" name="showName" value="{{movie.name}}">
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <label for="showRatingEditInput" class="col-sm-2 col-form-label">Rating</label>
+                                  <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="showRatingEditInput" name="showRating" value="{{movie.rating}}">
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <label for="showTimingsEditInput" class="col-sm-2 col-form-label">Timings</label>
+                                  <div class="col-sm-10">
+                                    <select class="form-select" id="showTimingsEditInput" name="showTimings">
+                                      <option selected value="10:00AM-12:00PM">10:00AM-12:00PM</option>
+                                      <option value="05:00PM-07:00PM">05:00PM-07:00PM</option>
+                                      <option value="10:00PM-12:00AM">10:00PM-12:00AM</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <label for="showTagsEditInput" class="col-sm-2 col-form-label">Tags</label>
+                                  <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="showTagsEditInput" name="showTags" value="{{movie.tags}}">
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <label for="showLanguageEditInput" class="col-sm-2 col-form-label">Language {{movie.language}}</label>
+                                  <div class="col-sm-10">
+                                    <select class="form-select" id="showLanguageEditInput" name="showLanguage">
+                                      <option value="English">English</option>
+                                      <option value="Hindi">Hindi</option>
+                                      <option value="Tamil">Tamil</option>
+                                      <option value="Malayalam">Malayalam</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <label for="ticketPriceEditInput" class="col-sm-2 col-form-label">Price</label>
+                                  <div class="col-sm-10">
+                                    <input type="number" class="form-control" id="ticketPriceEditInput" name="ticketPrice" value="{{show.ticket_price}}">
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <div class="col-sm-10">
+                                    <input type="hidden" class="form-control" id="venueIdEdit" name="venueId" value="{{venue.venue_id}}">
+                                  </div>
+                                </div>
+                                <div class="row mb-3">
+                                  <div class="col-sm-10">
+                                    <input type="hidden" class="form-control" id="movieIdEdit" name="movieId" value="{{show.movie_id}}">
+                                  </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" name="submit">Confirm Edit</button>
+                                <a type="submit" class="btn btn-danger" name="submit" href="/admin/dashboard/show/delete/{{show.show_id}}">Delete Show</a>
+                              </form>
+                            </div>
+                            <div class="modal-footer" >
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+
+
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          <br><br>
+          <!-- -->
+          <!-- Show Add Form-->
+          <!-- -->
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#showsCreateModal{{venue.venue_id}}">
+            + Add Shows
+          </button>
+          <div class="modal fade " id="showsCreateModal{{venue.venue_id}}" tabindex="-1" aria-labelledby="showCreateModalLabel{{venue.venue_id}}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="showCreateModalLabel{{venue.venue_id}}">Add Shows</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="{{ url_for('dashboard') }}" method="POST" id="showForm">
+                    <div class="row mb-3">
+                      <label for="movieNameInput" class="col-sm-2 col-form-label">Name</label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" id="movieNameInput" name="movieName">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="movieRatingInput" class="col-sm-2 col-form-label">Rating</label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" id="movieRatingInput" name="movieRating">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="movieTagsInput" class="col-sm-2 col-form-label">Tags</label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" id="movieTagsInput" name="movieTags">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="movieLanguageInput" class="col-sm-2 col-form-label">Language</label>
+                      <div class="col-sm-10">
+                        <select class="form-select" id="movieLanguageInput" name="movieLanguage">
+                          <option selected value="English">English</option>
+                          <option value="Hindi">Hindi</option>
+                          <option value="Tamil">Tamil</option>
+                          <option value="Malayalam">Malayalam</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="movieImage" class="col-sm-2 col-form-label">Image</label>
+                      <div class="col-sm-10">
+                        <input class="form-control" type="file" id="movieImage" name="imageFile">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="showTimingsInput" class="col-sm-2 col-form-label">Timings</label>
+                      <div class="col-sm-10">
+                        <select class="form-select" id="showTimingsInput" name="showTimings">
+                          <option selected value="10:00AM-12:00PM">10:00AM-12:00PM</option>
+                          <option value="05:00PM-07:00PM">05:00PM-07:00PM</option>
+                          <option value="10:00PM-12:00AM">10:00PM-12:00AM</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="ticketPriceInput" class="col-sm-2 col-form-label">Price</label>
+                      <div class="col-sm-10">
+                        <input type="number" class="form-control" id="ticketPriceInput" name="ticketPrice">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-sm-10">
+                        <input type="hidden" class="form-control" id="venueId" name="venueId" value="{{venue.venue_id}}">
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="submit" value="Add Show">Add Show</button>
+                  </form>
+                </div>
+                <div class="modal-footer" >
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br><br>
+
+          <!-- -->
+          <!-- Venue Add Form-->
+          <!-- -->
+
+          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#venueEditModal">
+            Edit
+          </button>
+          <div class="modal fade" id="venueEditModal" tabindex="-1" aria-labelledby="venueEditModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="venueEditModalLabel">Edit Venue</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form action="/admin/dashboard/venue/edit/{{venue.venue_id}}" method="POST" id="venueEditForm">
+                    <div class="row mb-3">
+                      <label for="venueNameEditInput" class="col-sm-2 col-form-label">Venue Name</label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" id="venueNameEditInput" name="venueName" value="{{venue.name}}">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="venueLocationEditInput" class="col-sm-2 col-form-label">Venue Location</label>
+                      <div class="col-sm-10">
+                        <select class="form-select" id="venueLocationEditInput" name="venueLocation">
+                          <option selected value="Chennai">Chennai</option>
+                          <option value="Bangalore">Bangalore</option>
+                          <option value="Kochi">Kochi</option>
+                        </select>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="submit">Edit Show</button>
+                  </form>
+                </div>
+                <div class="modal-footer" >
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a type="button" class="btn btn-danger" name="delete" href="/admin/dashboard/venue/delete/{{venue.venue_id}}">Delete</a>
+        </div>
+      </div>
+      <br><br>
+    {% endfor %}
+  {% else %}
+    <p> No shows or venues. Create one now!</p>
+  {% endif %}
+
+  <!-- -->
+  <!-- Venue Add Form-->
+  <!-- -->
+    <div class="modal fade" id="venueCreateModal" tabindex="-1" aria-labelledby="venueCreateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="venueCreateModalLabel">Create Venue</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="{{ url_for('dashboard') }}" method="POST" id="venueForm">
+              <div class="row mb-3">
+                <label for="venueNameInput" class="col-sm-2 col-form-label">Venue Name</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="venueNameInput" name="venueName">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="venueLocationInput" class="col-sm-2 col-form-label">Venue Location</label>
+                <div class="col-sm-10">
+                  <select class="form-select" id="venueLocationInput" name="venueLocation">
+                    <option selected value="Chennai">Chennai</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Kochi">Kochi</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" name="submit" value="Create Venue">Create Venue</button>
+            </form>
+          </div>
+          <div class="modal-footer" >
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
