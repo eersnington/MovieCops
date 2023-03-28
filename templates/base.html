@@ -89,10 +89,9 @@
           {% endif %}
         </ul>
         <br>
-        <form class="d-flex" method="post">
+        <form class="d-flex" action="{{url_for('shows')}}" method="POST">
           <!-- POST -->
-          <input class="form-control mr-sm-2" type="search" placeholder="Search Shows" aria-label="Search"
-            name="search">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search Shows" name="search">
           <button class="btn btn-outline-success" type="submit" name="submit" value="search">Search</button>
         </form>
       </div>

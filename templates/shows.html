@@ -4,8 +4,78 @@
 <title>Shows</title>
 {% endblock %}
 {% block body %}
+
+{% if search %}
+<h4>Searched: {{search}}</h4>
+<div class="container">
+  <div class="row">
+    {% if results %}
+      {% for movie in results %}
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="/static/{{movie.image_src}}" alt="Card image cap" height="450">
+          <div class="card-body">
+            <h5 class="card-title">{{movie.name}}</h5>
+            <p class="card-text">{{movie.tags}}</p>
+            <p class="card-text">{{movie.rating}}/10</p>
+            <p class="card-text">{{movie.language}}</p>
+            <a href="#" class="btn btn-primary">Book Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>No results found</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 <h2>Airing Now
+  <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas">
+    Filter
+  </button>
 </h2>
+<div class="offcanvas offcanvas-start"  id="filterOffcanvas" >
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="filterOffcanvasLabel">Filter Search</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form action="{{ url_for('shows') }}" method="POST" id="filterSearchForm">
+      <div class="row mb-3">
+        <p style="font-weight: bold;">Movie Ratings:</p>
+        <div class="col-sm-10">
+          <label for="minRating" class="col-sm-4 col-form-label">Min</label>
+          <input type="number" class="form-control" id="minRating" name="minRating" max="10" min="0">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <p style="font-weight: bold;">Movie Language:</p>
+        <div class="col-sm-10">
+          <select class="form-select" id="languageInput" name="language">
+            <option selected value="Any">Any</option>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Malayalam">Malayalam</option>
+          </select>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <p style="font-weight: bold;">Venue Location:</p>
+        <div class="col-sm-10">
+          <select class="form-select" id="locationInput" name="location">
+            <option selected value="Any">Any</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Kochi">Kochi</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" name="submit" value="Filter">Edit Search</button>
+    </form>
+  </div>
+</div>
 <div class="container">
   <div class="row">
     {% for movie in movies %}
