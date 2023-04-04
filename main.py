@@ -67,14 +67,17 @@ class Shows(db.Model):
                f"ticket_price={self.ticket_price}, seats={self.seats}, timings='{self.timings}')"
 
 
-# class Booking(db.Model):
-#     movie_id = ""
-#     booking_id = ""
-#     number = ""
-#     venue = ""
-#     timings = ""
-#
-#
+class Booking(db.Model):
+    booking_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_email = db.Column(db.String(50), db.ForeignKey(Movie.movie_id), nullable=False)
+    movie_id = db.Column(db.Integer, db.ForeignKey(Movie.movie_id), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey(Venue.venue_id), nullable=False)
+    show_id = db.Column(db.Integer, db.ForeignKey(Shows.show_id), nullable=False)
+    seat_num = db.Column(db.String(3), nullable=False)
+
+    def __repr__(self):
+        return f"Booking(booking_id={self.booking_id}, user_email='{self.user_email}', movie_id={self.movie_id}, " \
+               f"venue_id={self.venue_id}, show_id={self.show_id}, seat_num='{self.seat_num}')"
 
 
 """
@@ -88,6 +91,15 @@ def index():
     if logged_in:
         return render_template('index.html', userData=userData)
     return render_template('index.html')
+
+
+# USER MAIN PAGE (LANGUAGE)
+@app.route('/language/<lang>', methods=['GET', 'POST'])
+def indexLang(lang):
+    # TODO: LANGUAGE
+    if logged_in:
+        return render_template('index.html', userData=userData)
+    return render_template('index.html', )
 
 
 # LOGOUT
@@ -109,6 +121,7 @@ def logout():
 @app.route('/shows', methods=['GET', 'POST'])
 def shows():
     movies_list = Movie.query.all()
+    shows_list = Shows.query.all()
     if request.method == "POST":
         if request.form['submit'] == "search":
             searched_term = request.form['search']
@@ -116,12 +129,13 @@ def shows():
 
             if admin_user:
                 return render_template('shows.html', userData=userData, search=searched_term, results=res,
-                                       movies=movies_list, admin=True)
+                                       movies=movies_list, shows=shows_list, admin=True)
             if logged_in:
                 return render_template('shows.html', userData=userData, search=searched_term, results=res,
-                                       movies=movies_list)
+                                       movies=movies_list, shows=shows_list)
             else:
-                return render_template('shows.html', search=searched_term, results=res, movies=movies_list)
+                return render_template('shows.html', search=searched_term, results=res, movies=movies_list,
+                                       shows=shows_list)
 
         elif request.form['submit'] == "Filter":
             min_rating = request.form['minRating']
@@ -130,7 +144,8 @@ def shows():
 
             passed = False
 
-            query = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(Movie.movie_id == Shows.movie_id)
+            query = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
+                Movie.movie_id == Shows.movie_id)
 
             if location != "Any":
                 query = query.filter(Venue.location == location)
@@ -145,20 +160,20 @@ def shows():
             if passed:
                 res = [x[0] for x in query.all()]
                 if admin_user:
-                    return render_template('shows.html', movies=movies_list, userData=userData, search="Filter",
-                                           results=res, admin=True)
+                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData,
+                                           search="Filter", results=res, admin=True)
                 if logged_in:
-                    return render_template('shows.html', movies=movies_list, userData=userData, search="Filter",
-                                           results=res)
-                return render_template('shows.html', movies=movies_list, search="Filter", results=res)
+                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData,
+                                           search="Filter", results=res)
+                return render_template('shows.html', movies=movies_list, shows=shows_list, search="Filter", results=res)
             else:
-                return render_template('shows.html', movies=movies_list, search="Filter")
+                return render_template('shows.html', movies=movies_list, shows=shows_list, search="Filter")
 
     if admin_user:
-        return render_template('shows.html', movies=movies_list, userData=userData, admin=True)
+        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData, admin=True)
     if logged_in:
-        return render_template('shows.html', movies=movies_list, userData=userData)
-    return render_template('shows.html', movies=movies_list)
+        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData)
+    return render_template('shows.html', movies=movies_list, shows=shows_list)
 
 
 # USER LOGIN
@@ -213,6 +228,91 @@ def signup():
 
         return render_template('signup.html', success='Successfully signed up!')
     return render_template('signup.html')
+
+
+# MOVIE SEAT BOOKING
+@app.route('/booking/<int:show_id>', methods=['GET', 'POST'])
+def booking(show_id):
+    booked_seats = [x.seat_num for x in Booking.query.filter_by(show_id=show_id).all()]
+    show = Shows.query.get_or_404(show_id)
+    movie = Movie.query.filter_by(movie_id=show.movie_id).first()
+    venue = Venue.query.filter_by(venue_id=show.venue_id).first()
+
+    show_info = [movie.name, venue.name, venue.location, show.ticket_price]
+
+    if request.method == "POST":
+
+        if not logged_in:
+            return redirect(url_for('login'))
+
+        seats = [request.form[seat] for seat in request.form.keys()]
+        return redirect((url_for('bookingConfirm', show_id=show_id, selected_seats=seats)))
+
+    if admin_user:
+        return render_template('seatBooking.html', userData=userData, admin=True, showId=show_id, info=show_info,
+                               bookedSeats=booked_seats)
+    if logged_in:
+        return render_template('seatBooking.html', userData=userData, showId=show_id, info=show_info, bookedSeats=booked_seats)
+
+    return render_template('seatBooking.html', showId=show_id, info=show_info, bookedSeats=booked_seats)
+
+
+# MOVIE SEAT CONFIRM BOOKING
+@app.route('/booking/confirm/<int:show_id>', methods=['GET', 'POST'])
+def bookingConfirm(show_id):
+    if not logged_in:
+        return redirect(url_for('login'))
+
+    booked_seats = [x.seat_num for x in Booking.query.filter_by(show_id=show_id).all()]
+    show = Shows.query.get_or_404(show_id)
+    movie = Movie.query.filter_by(movie_id=show.movie_id).first()
+    venue = Venue.query.filter_by(venue_id=show.venue_id).first()
+
+    seats = request.args.getlist('selected_seats')
+
+    show_info = [movie.name, venue.name, venue.location, int(show.ticket_price)*len(seats), seats, movie.image_src]
+
+    if request.method == "POST":
+        user = User.query.filter_by(email=userData['email']).first()
+
+        for seat in request.form.keys():
+            if request.form[seat] in booked_seats:
+                abort(Response('Seat not available'))
+
+            booked_ticket = Booking(user_email=user.email, movie_id=movie.movie_id, venue_id=venue.venue_id,
+                                    show_id=show.show_id, seat_num=request.form[seat])
+            db.session.add(booked_ticket)
+        db.session.commit()
+        return redirect(url_for('booking', show_id=show_id))
+
+    if admin_user:
+        return render_template('bookingConfirm.html', userData=userData, admin=True, showId=show_id, info=show_info, seats=seats)
+
+    return render_template('bookingConfirm.html', userData=userData, showId=show_id, info=show_info, seats=seats)
+
+
+# USERS SHOWS
+@app.route('/bookings')
+def userBookings():
+    if not logged_in:
+        return redirect(url_for('login'))
+
+    bookings = db.session.query(Booking, Movie, Venue, Shows).filter(Booking.user_email == userData["email"]).filter(Venue.venue_id == Booking.venue_id).filter(
+                Movie.movie_id == Booking.movie_id).filter(Shows.show_id == Booking.show_id).all()
+
+    details = dict()
+
+    for b in bookings:
+        if b[3].show_id not in details.keys():
+            details[b[3].show_id] = {"movie_name": b[1].name, "venue_name": b[2].name, "venue_location": b[2].location,
+                                     "timings": b[3].timings, "language": b[1].language, "seats": [], "image_src": b[1].image_src}
+
+        details[b[3].show_id]["seats"].append(b[0].seat_num)
+
+    if admin_user:
+        return render_template('userTickets.html', userData=userData, admin=True, bookings=details)
+
+    return render_template('userTickets.html', userData=userData, bookings=details)
 
 
 """

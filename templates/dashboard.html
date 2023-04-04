@@ -206,10 +206,10 @@
           <!-- Venue Add Form-->
           <!-- -->
 
-          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#venueEditModal">
+          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#venueEditModal{{venue.venue_id}}">
             Edit
           </button>
-          <div class="modal fade" id="venueEditModal" tabindex="-1" aria-labelledby="venueEditModalLabel" aria-hidden="true">
+          <div class="modal fade" id="venueEditModal{{venue.venue_id}}" tabindex="-1" aria-labelledby="venueEditModalLabel{{venue.venue_id}}" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
@@ -234,7 +234,7 @@
                         </select>
                       </div>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="submit">Edit Show</button>
+                    <button type="submit" class="btn btn-primary" name="submit">Edit Venue</button>
                   </form>
                 </div>
                 <div class="modal-footer" >

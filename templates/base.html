@@ -55,7 +55,7 @@
                 </ul>
               {% else %}
                 <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                  <li><a class="dropdown-item" href="{{ url_for('index') }}">Bookings</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('userBookings') }}">Bookings</a></li>
                   <li><a class="dropdown-item" href="{{ url_for('logout') }}" id="Logout">Logout</a></li>
                 </ul>
               {% endif %}

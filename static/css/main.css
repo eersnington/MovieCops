@@ -18,5 +18,3 @@ h3{
 h5{
     font-weight: 500
 }
-$carousel-transition-duration:       .6s;
-$carousel-transition:                transform $carousel-transition-duration ease-in-out;

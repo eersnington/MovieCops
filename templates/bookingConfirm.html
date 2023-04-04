@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Confirm Booking</title>
+<style>
+  .form {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<main class="form">
+    <form action="/booking/confirm/{{ showId }}" method="POST">
+        <div class="container">
+            <div class="card bg-dark text-white">
+                <img src="/static/{{info[5]}}" class="card-img-top" height="450">
+                <div class="card-body">
+                <h5 class="card-title">Confirm Booking: {{info[0]}}</h5>
+                <p class="card-text">Seats:
+                    {% for seat in seats %}
+                        <strong> {{seat}} </strong>,
+                        <input type="text" class="form-control" id="seat{{seat}}" name="seat{{seat}}" value="{{seat}}" hidden>
+                    {% endfor %}
+                </p>
+                <p class="card-text">Venue: <strong>{{info[1]}}</strong></p>
+                <p class="card-text">Location: <strong>{{info[2]}}</strong></p>
+                <p class="card-text">Total Price: <strong>{{info[3]}}</strong></p>
+                <button type="submit" class="btn btn-success">Confirm Booking</button>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-sm">
+                    <a href="{{ url_for('booking', show_id=showId) }}" class="btn btn-primary">Go back</a>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+{% endblock %}

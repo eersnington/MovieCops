@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Bookings</title>
+<style>
+  .bookings {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<main class="bookings">
+    <div class="container">
+        {% for key in bookings %}
+            <div class="card" style="max-width: 18rem;">
+                <img src="/static/{{bookings[key]['image_src']}}" class="card-img-top" height="225" >
+                <div class="card-body">
+                <h5 class="card-title">{{bookings[key]["movie_name"]}}</h5>
+                <p class="card-text">Seats:
+                    {% for seat in bookings[key]["seats"] %}
+                        <strong> {{seat}} </strong>,
+                    {% endfor %}
+                </p>
+                <p class="card-text">Venue: <strong>{{bookings[key]["venue_name"]}}</strong></p>
+                <p class="card-text">Location: <strong>{{bookings[key]["venue_location"]}}</strong></p>
+                <p class="card-text">Timings: <strong>{{bookings[key]["timings"]}}</strong></p>
+                <p class="card-text">Language: <strong>{{bookings[key]["language"]}}</strong></p>
+                </div>
+            </div>
+            <br>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

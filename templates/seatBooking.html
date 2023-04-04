@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Select Seats</title>
+<style>
+  .form {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+  }
+  .movieScreen {
+    border-top: 128px solid;
+    width: 350px;
+    border-left: 32px solid transparent;
+    border-right: 32px solid transparent;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<main class="form">
+  <form action="/booking/{{ showId }}" method="POST">
+    <div class="container">
+      <br>
+      <h5 align="center">Select Seats: {{info[0]}}</h5>
+      <br>
+      <div class ="movieScreen" ></div>
+      <p align="center"> Movie Screen </p>
+      <br>
+        <div class="row text-success">
+
+          A
+          {% for i in range(5) %}
+            {% if 'A%s' %(i+1)|string in bookedSeats %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="A{{ i+1 }}" id="seatA{{ i+1 }}Checked" checked disabled>
+                <label class="form-check-label" for="seatA{{ i+1 }}Checked">
+                  A{{ i+1 }}
+                </label>
+              </div>
+            {% else %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="A{{ i+1 }}" id="seatA{{ i+1 }}" name="seatA{{ i+1 }}">
+                <label class="form-check-label" for="seatA{{ i+1 }}">
+                  A{{ i+1 }}
+                </label>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
+        <div class="row text-success">
+          B
+          {% for i in range(5) %}
+            {% if 'B%s' %(i+1)|string in bookedSeats %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="B{{ i+1 }}" id="seatB{{ i+1 }}Checked" checked disabled>
+                <label class="form-check-label" for="seatB{{ i+1 }}Checked">
+                  B{{ i+1 }}
+                </label>
+              </div>
+            {% else %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="B{{ i+1 }}" id="seatB{{ i+1 }}" name="seatB{{ i+1 }}">
+                <label class="form-check-label" for="seatB{{ i+1 }}">
+                  B{{ i+1 }}
+                </label>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
+        <div class="row text-success">
+          C
+          {% for i in range(5) %}
+            {% if 'C%s' %(i+1)|string in bookedSeats %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="C{{ i+1 }}" id="seatC{{ i+1 }}Checked" checked disabled>
+                <label class="form-check-label" for="seatC{{ i+1 }}Checked">
+                  C{{ i+1 }}
+                </label>
+              </div>
+            {% else %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="C{{ i+1 }}" id="seatC{{ i+1 }}" name="seatC{{ i+1 }}">
+                <label class="form-check-label" for="seatC{{ i+1 }}">
+                  C{{ i+1 }}
+                </label>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
+        <div class="row text-success">
+          D
+          {% for i in range(5) %}
+            {% if 'D%s' %(i+1)|string in bookedSeats %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="D{{ i+1 }}" id="seatD{{ i+1 }}Checked" checked disabled>
+                <label class="form-check-label" for="seatD{{ i+1 }}Checked">
+                  D{{ i+1 }}
+                </label>
+              </div>
+            {% else %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="D{{ i+1 }}" id="seatD{{ i+1 }}" name="seatD{{ i+1 }}">
+                <label class="form-check-label" for="seatD{{ i+1 }}">
+                  D{{ i+1 }}
+                </label>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
+        <div class="row text-success">
+          E
+          {% for i in range(5) %}
+            {% if 'E%s' %(i+1)|string in bookedSeats %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="E{{ i+1 }}" id="seatE{{ i+1 }}Checked" checked disabled>
+                <label class="form-check-label" for="seatE{{ i+1 }}Checked">
+                  E{{ i+1 }}
+                </label>
+              </div>
+            {% else %}
+              <div class="col-sm">
+                <input class="form-check-input" type="checkbox" value="E{{ i+1 }}" id="seatE{{ i+1 }}" name="seatE{{ i+1 }}">
+                <label class="form-check-label" for="seatE{{ i+1 }}">
+                  E{{ i+1 }}
+                </label>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <br>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-sm">
+        <p>Venue: <strong>{{info[1]}}</strong></p>
+        <p>Location: <strong>{{info[2]}}</strong></p>
+        <p>Price Per Ticket: <strong>{{info[3]}}</strong></p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm">
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Confirm Booking</button>
+      </div>
+    </div>
+    <br>
+  </form>
+</main>
+{% endblock %}

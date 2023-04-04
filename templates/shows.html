@@ -87,7 +87,11 @@
             <p class="card-text">{{movie.tags}}</p>
             <p class="card-text">{{movie.rating}}/10</p>
             <p class="card-text">{{movie.language}}</p>
-            <a href="#" class="btn btn-primary">Book Now</a>
+            {% for show in shows %}
+              {% if show.movie_id == movie.movie_id %}
+                <a href="/booking/{{ show.show_id }}" class="btn btn-primary">Book Now</a>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
       </div>
