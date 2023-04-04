@@ -88,18 +88,24 @@ class Booking(db.Model):
 # USER MAIN PAGE
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    movies = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
+        Movie.movie_id == Shows.movie_id).order_by(Movie.rating.desc()).limit(6).all()
+
     if logged_in:
-        return render_template('index.html', userData=userData)
-    return render_template('index.html')
+        return render_template('index.html', userData=userData, recommended=movies)
+    return render_template('index.html', recommended=movies)
 
 
-# USER MAIN PAGE (LANGUAGE)
-@app.route('/language/<lang>', methods=['GET', 'POST'])
-def indexLang(lang):
-    # TODO: LANGUAGE
+# USER MAIN PAGE (LOCATION)
+@app.route('/language/<loc>', methods=['GET', 'POST'])
+def indexLang(loc):
+    recommended = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
+                Movie.movie_id == Shows.movie_id, Venue.location == loc).order_by(Movie.rating.desc()).limit(6).all()
+    if admin_user:
+        return render_template('index.html', userData=userData, admin=True, recommended=recommended)
     if logged_in:
-        return render_template('index.html', userData=userData)
-    return render_template('index.html', )
+        return render_template('admin.html', userData=userData, recommended=recommended)
+    return render_template('index.html', recommended=recommended)
 
 
 # LOGOUT
@@ -158,7 +164,7 @@ def shows():
                 passed = True
 
             if passed:
-                res = [x[0] for x in query.all()]
+                res = query.all()
                 if admin_user:
                     return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData,
                                            search="Filter", results=res, admin=True)
@@ -325,7 +331,10 @@ def userBookings():
 def admin():
     if not admin_user:
         return redirect(url_for('index'))
-    return render_template('admin.html', userData=userData, admin=True)
+    movies = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
+        Movie.movie_id == Shows.movie_id).order_by(Movie.rating.desc()).limit(6).all()
+
+    return render_template('admin.html', userData=userData, admin=True, recommended=movies)
 
 
 # ADMIN LOGIN

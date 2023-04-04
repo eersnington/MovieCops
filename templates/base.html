@@ -81,9 +81,9 @@
                 Location
               </a>
               <ul class="dropdown-menu" aria-labelledby="locationDropdown">
-                <li><a class="dropdown-item" href="#">Chennai</a></li>
-                <li><a class="dropdown-item" href="#">Kochi</a></li>
-                <li><a class="dropdown-item" href="#">Bangalore</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('indexLang', loc='Chennai') }}">Chennai</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('indexLang', loc='Kochi') }}">Kochi</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('indexLang', loc='Bangalore') }}">Bangalore</a></li>
               </ul>
             </li>
           {% endif %}

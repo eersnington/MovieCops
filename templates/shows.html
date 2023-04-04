@@ -13,13 +13,13 @@
       {% for movie in results %}
       <div class="col">
         <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="/static/{{movie.image_src}}" alt="Card image cap" height="450">
+          <img class="card-img-top" src="/static/{{movie[0].image_src}}" alt="Card image cap" height="450">
           <div class="card-body">
-            <h5 class="card-title">{{movie.name}}</h5>
-            <p class="card-text">{{movie.tags}}</p>
-            <p class="card-text">{{movie.rating}}/10</p>
-            <p class="card-text">{{movie.language}}</p>
-            <a href="#" class="btn btn-primary">Book Now</a>
+            <h5 class="card-title">{{movie[0].name}}</h5>
+            <p class="card-text">{{movie[0].tags}}</p>
+            <p class="card-text">{{movie[0].rating}}/10</p>
+            <p class="card-text">{{movie[0].language}}</p>
+            <a href="/booking/{{ movie[2].show_id }}" class="btn btn-primary">Book Now</a>
           </div>
         </div>
       </div>

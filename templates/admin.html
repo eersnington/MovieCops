@@ -48,37 +48,24 @@
   <div>
     <div class="container">
       <div class="row">
-        <div class="col-lg">
-          <div class="card" style="width: 18rem;">
-            <img class="card-img-top" src="{{ url_for('static', filename='images/card1.jpg') }}" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">John Wick</h5>
-              <p class="card-text">Action/Thriller</p>
-              <a href="#" class="btn btn-primary">Book Now</a>
+        {%if recommended%}
+          {% for movie in recommended %}
+            <div class="col">
+              <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="/static/{{movie[0].image_src}}" alt="Card image cap" height="450">
+                <div class="card-body">
+                  <h5 class="card-title">{{movie[0].name}}</h5>
+                  <p class="card-text">{{movie[0].tags}}</p>
+                  <p class="card-text">{{movie[0].rating}}/10</p>
+                  <p class="card-text">{{movie[0].language}}</p>
+                  <a href="/booking/{{ movie[2].show_id }}" class="btn btn-primary">Book Now</a>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="col-lg">
-          <div class="card" style="width: 18rem;">
-            <img class="card-img-top" src="{{ url_for('static', filename='images/card2.jpg') }}" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">Pathaan</h5>
-              <p class="card-text">Action/Thriller</p>
-              <a href="#" class="btn btn-primary">Book Now</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg">
-          <div class="card" style="width: 18rem;">
-            <img class="card-img-top" src="{{ url_for('static', filename='images/card3.jpg') }}" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">Tu Jhoothi Main Makkaar</h5>
-              <p class="card-text">Romantic/Comedy</p>
-              <a href="#" class="btn btn-primary">Book Now</a>
-            </div>
-          </div>
-        </div>
-        <!-- Row Ends-->
+          {% endfor %}
+        {% else %}
+          <p>There are no films airing currently in this location</p>
+        {% endif %}
       </div>
     </div>
   </div>
