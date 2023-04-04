@@ -18,3 +18,50 @@ h3{
 h5{
     font-weight: 500
 }
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
+}
+.form-adminSignin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: auto;
+}
+.form-signup {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px;
+    margin: auto;
+}
+.form-seatBooking {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+}
+  .movieScreen {
+    border-top: 128px solid;
+    width: 350px;
+    border-left: 32px solid transparent;
+    border-right: 32px solid transparent;
+}
+.bookings {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+}
+.form-booking {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
+}
+.dashboard {
+    width: 100%;
+    padding: 15px;
+    margin: auto;
+}

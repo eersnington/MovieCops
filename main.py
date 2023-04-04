@@ -131,7 +131,8 @@ def shows():
     if request.method == "POST":
         if request.form['submit'] == "search":
             searched_term = request.form['search']
-            res = Movie.query.filter(Movie.name.contains(searched_term)).all()
+            res = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
+                Movie.movie_id == Shows.movie_id).filter(Movie.name.contains(searched_term)).all()
 
             if admin_user:
                 return render_template('shows.html', userData=userData, search=searched_term, results=res,

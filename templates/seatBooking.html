@@ -2,25 +2,11 @@
 
 {% block head %}
 <title>Select Seats</title>
-<style>
-  .form {
-    width: 100%;
-    max-width: 400px;
-    padding: 15px;
-    margin: auto;
-  }
-  .movieScreen {
-    border-top: 128px solid;
-    width: 350px;
-    border-left: 32px solid transparent;
-    border-right: 32px solid transparent;
-  }
-</style>
 {% endblock %}
 
 {% block body %}
 
-<main class="form">
+<main class="form-seatBooking">
   <form action="/booking/{{ showId }}" method="POST">
     <div class="container">
       <br>

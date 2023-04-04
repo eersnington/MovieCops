@@ -1,18 +1,6 @@
 {% extends 'base.html' %}
 {% block head %}
 <title>Admin Login</title>
-<style>
-  .form-adminSignin {
-    width: 100%;
-    max-width: 330px;
-    padding: 15px;
-    margin: auto;
-  }
-
-  p {
-    color: red;
-  }
-</style>
 {% endblock %}
 
 {% block body %}
@@ -25,8 +13,7 @@
       <div class="row ">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com"
-              required>
+            <input type="email" name="email" class="form-control" id="floatingInput" required>
             <label for="floatingInput">Email address</label>
           </div>
         </div>
@@ -35,8 +22,7 @@
       <div class="row">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"
-              required>
+            <input type="password" name="password" class="form-control" id="floatingPassword" required>
             <label for="floatingPassword">Password</label>
           </div>
         </div>
@@ -50,7 +36,7 @@
     </div>
     <br>
     {% if error %}
-    <p>{{ error }}</p>
+    <p style="color: red;">{{ error }}</p>
     {% endif %}
   </form>
 </main>

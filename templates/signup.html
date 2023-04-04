@@ -2,14 +2,6 @@
 
 {% block head %}
 <title>Sign Up</title>
-<style>
-  .form-signup {
-    width: 100%;
-    max-width: 500px;
-    padding: 15px;
-    margin: auto;
-  }
-</style>
 {% endblock %}
 
 {% block body %}
@@ -19,7 +11,7 @@
       <br>
       <div class="row">
         <div class="col-sm">
-          <h1 class="h3 mb-3 fw-normal">Sign up to MoviePolis <img src="static/images/movie-ticket.png" width="50"
+          <h1 class="h3">Sign up to MovieCops <img src="static/images/movie-ticket.png" width="50"
               height="50" alt=""> </h1>
         </div>
       </div>
@@ -27,8 +19,7 @@
       <div class="row ">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com"
-              required>
+            <input type="email" name="email" class="form-control" id="floatingInput" required>
             <div class="invalid-feedback">
               Please enter your email.
             </div>
@@ -40,8 +31,7 @@
       <div class="row">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="text" name="name" class="form-control" id="floatingName" placeholder="Name"
-              required>
+            <input type="text" name="name" class="form-control" id="floatingName" required>
               <div class="invalid-feedback">
                 Please enter your name.
               </div>
@@ -64,8 +54,7 @@
       <div class="row">
         <div class="col-sm">
           <div class="form-floating">
-            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"
-              required>
+            <input type="password" name="password" class="form-control" id="floatingPassword" required>
             <div class="invalid-feedback">
               Please enter your password.
             </div>

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <!-- Stylesheets-->
   <!-- BootStrap 5.0.2-->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -26,18 +25,18 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <img src="{{ url_for('static', filename='images/movie-ticket.png') }}" width="50" height="50" alt="">
-      <a class="navbar-brand" href="{{ url_for('index') }}">&nbsp;MoviePolis</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="{{ url_for('index') }}">&nbsp;MovieCops</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarElements"
+        aria-controls="navbarElements" >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <div class="collapse navbar-collapse" id="navbarElements">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item active">
             {% if admin %}
-                <a class="nav-link" href="{{ url_for('admin') }}">Home <span class="sr-only"></span></a>
+                <a class="nav-link" href="{{ url_for('admin') }}">Home</a>
               {% else %}
-                <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only"></span></a>
+                <a class="nav-link" href="{{ url_for('index') }}">Home</a>
               {% endif %}
           </li>
           <li class="nav-item">
@@ -65,19 +64,17 @@
           </li>
           {% if admin %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
                 Admin Panel
               </a>
-              <ul class="dropdown-menu" aria-labelledby="locationDropdown">
+              <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                 <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li><a class="dropdown-item" href="#">Summary</a></li>
               </ul>
             </li>
           {% else %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="locationDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" id="locationDropdown" role="button" data-bs-toggle="dropdown">
                 Location
               </a>
               <ul class="dropdown-menu" aria-labelledby="locationDropdown">
@@ -90,7 +87,6 @@
         </ul>
         <br>
         <form class="d-flex" action="{{url_for('shows')}}" method="POST">
-          <!-- POST -->
           <input class="form-control mr-sm-2" type="search" placeholder="Search Shows" name="search">
           <button class="btn btn-outline-success" type="submit" name="submit" value="search">Search</button>
         </form>
