@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 
 import qrcode as qr
@@ -87,9 +88,13 @@ class Booking(db.Model):
 def delete_qrcodes():
     qrFolder = os.listdir('static/qr')
     for qrCode in qrFolder:
-        mt = os.path.getmtime("static/qr/" + qrCode)
-        if time.time() - mt > 300:
-            os.remove("static/qr/" + qrCode)
+        os.remove("static/qr/" + qrCode)
+
+
+def interval_loop(interval):
+    while True:
+        delete_qrcodes()
+        time.sleep(interval)
 
 
 """
@@ -514,5 +519,7 @@ def showRequest(response, show_id):
 
 
 if __name__ == '__main__':
-    delete_qrcodes()
+    t = threading.Thread(target=interval_loop, args=(5,))
+    t.daemon = True
+    t.start()
     app.run(debug=True)
