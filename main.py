@@ -3,6 +3,8 @@ import re
 from flask import Flask, redirect, render_template, request, url_for, abort, Response
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+# from flask_bcrypt
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///movieDB.sqlite"
@@ -35,7 +37,7 @@ class Movie(db.Model):
                f" language='{self.language}, image_src='{self.image_src}')"
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     email = db.Column(db.String(50), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
@@ -224,7 +226,8 @@ def signup():
             return render_template('signup.html', error='Select your preferred language')
         if len(password) < 8:
             return render_template('signup.html', error='Your password must have at least 8 chars')
-        if bool(re.match('^[a-zA-Z0-9]*$', password)):
+        print(re.match('^[a-zA-Z0-9]*$', password))
+        if re.match('^[a-zA-Z0-9]*$', password):
             return render_template('signup.html',
                                    error='Your password doesn\'t contain a capital letter/number/special character')
 
