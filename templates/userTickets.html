@@ -21,7 +21,8 @@
                 <p class="card-text">Venue: <strong>{{bookings[key]["venue_name"]}}</strong></p>
                 <p class="card-text">Location: <strong>{{bookings[key]["venue_location"]}}</strong></p>
                 <p class="card-text">Timings: <strong>{{bookings[key]["timings"]}}</strong></p>
-                <p class="card-text">Language: <strong>{{bookings[key]["language"]}}</strong></p>
+                <p class="card-text">QRCode: </p>
+                    <img src="/static/qr/show_{{key}}.svg" alt="" />
                 </div>
             </div>
             <br>

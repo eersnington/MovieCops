@@ -1,22 +1,20 @@
-import re
+import os
+import time
 
-from flask import Flask, redirect, render_template, request, url_for, abort, Response
+import qrcode as qr
+import qrcode.image.svg as qrsvg
+from flask import Flask, redirect, render_template, request, url_for, abort, Response, session
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-# from flask_bcrypt
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///movieDB.sqlite"
+app.config['SECRET_KEY'] = "moviecops"
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 Bootstrap(app)
 
-logged_in = False
-admin_user = False
-userData = {
-    "name": "",
-    "email": "",
-    "language": ""
-}
 
 """
     Models for Tables
@@ -82,6 +80,19 @@ class Booking(db.Model):
 
 
 """
+    Functions 
+"""
+
+
+def delete_qrcodes():
+    qrFolder = os.listdir('static/qr')
+    for qrCode in qrFolder:
+        mt = os.path.getmtime("static/qr/" + qrCode)
+        if time.time() - mt > 300:
+            os.remove("static/qr/" + qrCode)
+
+
+"""
     USER Endpoints 
 """
 
@@ -92,8 +103,8 @@ def index():
     movies = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
         Movie.movie_id == Shows.movie_id).order_by(Movie.rating.desc()).limit(6).all()
 
-    if logged_in:
-        return render_template('index.html', userData=userData, recommended=movies)
+    if 'user' in session.keys():
+        return render_template('index.html', userData=session['user'], recommended=movies)
     return render_template('index.html', recommended=movies)
 
 
@@ -101,27 +112,12 @@ def index():
 @app.route('/language/<loc>', methods=['GET', 'POST'])
 def indexLang(loc):
     recommended = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
-                Movie.movie_id == Shows.movie_id, Venue.location == loc).order_by(Movie.rating.desc()).limit(6).all()
-    if admin_user:
-        return render_template('index.html', userData=userData, admin=True, recommended=recommended)
-    if logged_in:
-        return render_template('admin.html', userData=userData, recommended=recommended)
+        Movie.movie_id == Shows.movie_id, Venue.location == loc).order_by(Movie.rating.desc()).limit(6).all()
+    if 'admin' in session.keys():
+        return render_template('index.html', userData=session['admin'], admin=True, recommended=recommended)
+    if 'user' in session.keys():
+        return render_template('admin.html', userData=session['user'], recommended=recommended)
     return render_template('index.html', recommended=recommended)
-
-
-# LOGOUT
-@app.route('/logout', methods=['GET'])
-def logout():
-    global logged_in, userData, admin_user
-    if logged_in:
-        logged_in = False
-        admin_user = False
-        userData = {
-            "name": "",
-            "email": "",
-            "language": ""
-        }
-    return redirect(url_for('index'))
 
 
 # SHOWS
@@ -135,11 +131,11 @@ def shows():
             res = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
                 Movie.movie_id == Shows.movie_id).filter(Movie.name.contains(searched_term)).all()
 
-            if admin_user:
-                return render_template('shows.html', userData=userData, search=searched_term, results=res,
+            if 'admin' in session.keys():
+                return render_template('shows.html', userData=session['admin'], search=searched_term, results=res,
                                        movies=movies_list, shows=shows_list, admin=True)
-            if logged_in:
-                return render_template('shows.html', userData=userData, search=searched_term, results=res,
+            if 'user' in session.keys():
+                return render_template('shows.html', userData=session['user'], search=searched_term, results=res,
                                        movies=movies_list, shows=shows_list)
             else:
                 return render_template('shows.html', search=searched_term, results=res, movies=movies_list,
@@ -167,45 +163,53 @@ def shows():
 
             if passed:
                 res = query.all()
-                if admin_user:
-                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData,
+                if 'admin' in session.keys():
+                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=session['admin'],
                                            search="Filter", results=res, admin=True)
-                if logged_in:
-                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData,
+                if 'user' in session.keys():
+                    return render_template('shows.html', movies=movies_list, shows=shows_list, userData=session['user'],
                                            search="Filter", results=res)
                 return render_template('shows.html', movies=movies_list, shows=shows_list, search="Filter", results=res)
             else:
                 return render_template('shows.html', movies=movies_list, shows=shows_list, search="Filter")
 
-    if admin_user:
-        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData, admin=True)
-    if logged_in:
-        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=userData)
+    if 'admin' in session.keys():
+        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=session['admin'], admin=True)
+    if 'user' in session.keys():
+        return render_template('shows.html', movies=movies_list, shows=shows_list, userData=session['user'])
     return render_template('shows.html', movies=movies_list, shows=shows_list)
 
 
 # USER LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    global logged_in
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return render_template('adminLogin.html', error='User not found')
-        if user.password != password:
-            return render_template('adminLogin.html', error='Invalid password')
+            return render_template('login.html', error='User not found')
 
-        logged_in = True
+        if not bcrypt.check_password_hash(user.password, password):
+            return render_template('login.html', error='Invalid password')
 
-        userData["name"] = user.name
-        userData["email"] = user.email
-        userData["language"] = user.language
+        session['user'] = {
+            "name": user.name,
+            "email": user.email,
+            "language": user.language
+        }
 
         return redirect(url_for('index'))
     return render_template('login.html')
+
+
+# LOGOUT
+@app.route('/logout', methods=['GET'])
+def logout():
+    if 'user' in session:
+        session.pop('user', default=None)
+    return redirect(url_for('index'))
 
 
 # USER SIGNUP
@@ -219,17 +223,32 @@ def signup():
 
         check_email = User.query.filter_by(email=email).first()
 
+        has_uppercase = False
+        has_lowercase = False
+        has_digit = False
+        has_special = False
+        allowed_special = ['!', '@', '#', '$', '%']
+
         if check_email:
             return render_template('signup.html', error='Email is already in use')
         if language == 'Select your preferred language':
             return render_template('signup.html', error='Select your preferred language')
         if len(password) < 8:
             return render_template('signup.html', error='Your password must have at least 8 chars')
-        print(re.match('^[a-zA-Z0-9]*$', password))
-        if re.match('^[a-zA-Z0-9]*$', password):
+        for char in password:
+            if char.isupper():
+                has_uppercase = True
+            elif char.islower():
+                has_lowercase = True
+            elif char.isdigit():
+                has_digit = True
+            elif char in allowed_special:
+                has_special = True
+        if not (has_uppercase and has_lowercase and has_digit and has_special):
             return render_template('signup.html',
                                    error='Your password doesn\'t contain a capital letter/number/special character')
 
+        password = bcrypt.generate_password_hash(password)
         new_user = User(email=email, name=name,
                         password=password, language=language)
         db.session.add(new_user)
@@ -251,17 +270,18 @@ def booking(show_id):
 
     if request.method == "POST":
 
-        if not logged_in:
+        if not ('user' in session.keys()):
             return redirect(url_for('login'))
 
         seats = [request.form[seat] for seat in request.form.keys()]
         return redirect((url_for('bookingConfirm', show_id=show_id, selected_seats=seats)))
 
-    if admin_user:
-        return render_template('seatBooking.html', userData=userData, admin=True, showId=show_id, info=show_info,
+    if 'admin' in session.keys():
+        return render_template('seatBooking.html', userData=session['admin'], admin=True, showId=show_id, info=show_info,
                                bookedSeats=booked_seats)
-    if logged_in:
-        return render_template('seatBooking.html', userData=userData, showId=show_id, info=show_info, bookedSeats=booked_seats)
+    if 'user' in session.keys():
+        return render_template('seatBooking.html', userData=session['user'], showId=show_id, info=show_info,
+                               bookedSeats=booked_seats)
 
     return render_template('seatBooking.html', showId=show_id, info=show_info, bookedSeats=booked_seats)
 
@@ -269,7 +289,7 @@ def booking(show_id):
 # MOVIE SEAT CONFIRM BOOKING
 @app.route('/booking/confirm/<int:show_id>', methods=['GET', 'POST'])
 def bookingConfirm(show_id):
-    if not logged_in:
+    if not ('user' in session.keys()):
         return redirect(url_for('login'))
 
     booked_seats = [x.seat_num for x in Booking.query.filter_by(show_id=show_id).all()]
@@ -279,10 +299,10 @@ def bookingConfirm(show_id):
 
     seats = request.args.getlist('selected_seats')
 
-    show_info = [movie.name, venue.name, venue.location, int(show.ticket_price)*len(seats), seats, movie.image_src]
+    show_info = [movie.name, venue.name, venue.location, int(show.ticket_price) * len(seats), seats, movie.image_src]
 
     if request.method == "POST":
-        user = User.query.filter_by(email=userData['email']).first()
+        user = User.query.filter_by(email=session['user']['email']).first()
 
         for seat in request.form.keys():
             if request.form[seat] in booked_seats:
@@ -294,34 +314,45 @@ def bookingConfirm(show_id):
         db.session.commit()
         return redirect(url_for('booking', show_id=show_id))
 
-    if admin_user:
-        return render_template('bookingConfirm.html', userData=userData, admin=True, showId=show_id, info=show_info, seats=seats)
+    if 'admin' in session.keys():
+        return render_template('bookingConfirm.html', userData=session['admin'], admin=True, showId=show_id,
+                               info=show_info,
+                               seats=seats)
 
-    return render_template('bookingConfirm.html', userData=userData, showId=show_id, info=show_info, seats=seats)
+    return render_template('bookingConfirm.html', userData=session['user'], showId=show_id, info=show_info, seats=seats)
 
 
 # USERS SHOWS
 @app.route('/bookings')
 def userBookings():
-    if not logged_in:
+    if not ('user' in session.keys()):
         return redirect(url_for('login'))
 
-    bookings = db.session.query(Booking, Movie, Venue, Shows).filter(Booking.user_email == userData["email"]).filter(Venue.venue_id == Booking.venue_id).filter(
-                Movie.movie_id == Booking.movie_id).filter(Shows.show_id == Booking.show_id).all()
+    bookings = db.session.query(Booking, Movie, Venue, Shows).filter(Booking.user_email == session['user']["email"]).filter(
+        Venue.venue_id == Booking.venue_id).filter(
+        Movie.movie_id == Booking.movie_id).filter(Shows.show_id == Booking.show_id).all()
 
     details = dict()
 
     for b in bookings:
         if b[3].show_id not in details.keys():
             details[b[3].show_id] = {"movie_name": b[1].name, "venue_name": b[2].name, "venue_location": b[2].location,
-                                     "timings": b[3].timings, "language": b[1].language, "seats": [], "image_src": b[1].image_src}
+                                     "timings": b[3].timings, "language": b[1].language, "seats": [],
+                                     "image_src": b[1].image_src}
 
         details[b[3].show_id]["seats"].append(b[0].seat_num)
 
-    if admin_user:
-        return render_template('userTickets.html', userData=userData, admin=True, bookings=details)
+    delete_qrcodes()
+    for show in details:
+        data = details[show]
+        factory = qrsvg.SvgImage
+        qrCode = qr.make(data, image_factory=factory)
+        qrCode.save(os.path.abspath(os.curdir).replace("\\", "\\\\") + "\\static\\qr\\show_" + str(show) + ".svg")
 
-    return render_template('userTickets.html', userData=userData, bookings=details)
+    if 'admin' in session.keys():
+        return render_template('userTickets.html', userData=session['admin'], admin=True, bookings=details)
+
+    return render_template('userTickets.html', userData=session['user'], bookings=details)
 
 
 """
@@ -332,19 +363,19 @@ def userBookings():
 # ADMIN PAGE
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    if not admin_user:
+    if not ('admin' in session.keys()):
         return redirect(url_for('index'))
     movies = db.session.query(Movie, Venue, Shows).filter(Venue.venue_id == Shows.venue_id).filter(
         Movie.movie_id == Shows.movie_id).order_by(Movie.rating.desc()).limit(6).all()
 
-    return render_template('admin.html', userData=userData, admin=True, recommended=movies)
+    return render_template('admin.html', userData=session['admin'], admin=True, recommended=movies)
 
 
 # ADMIN LOGIN
 @app.route('/admin/login', methods=['GET', 'POST'])
 def adminLogin():
-    global logged_in, admin_user
-    if admin_user:
+
+    if 'admin' in session.keys():
         return redirect(url_for('admin'))
 
     if request.method == "POST":
@@ -354,17 +385,16 @@ def adminLogin():
 
         if not user:
             return render_template('adminLogin.html', error='User not found')
-        if user.password != password:
+        if not bcrypt.check_password_hash(user.password, password):
             return render_template('adminLogin.html', error='Invalid password')
-        if user.email != 'glowstonedev@gmail.com':  # Admin User
+        if user.email != '22f1000950@ds.study.iitm.ac.in':  # Admin User
             return render_template('login.html', error='You do not have admin privileges!')
 
-        logged_in = True
-        admin_user = True
-
-        userData["name"] = user.name
-        userData["email"] = user.email
-        userData["language"] = user.language
+        session['admin'] = {
+            "name": user.name,
+            "email": user.email,
+            "language": user.language
+        }
 
         return redirect(url_for('admin'))
     return render_template('adminLogin.html')
@@ -373,7 +403,7 @@ def adminLogin():
 # ADMIN DASHBOARD (CREATE VENUES AND SHOWS)
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    if not admin_user:
+    if not ('admin' in session.keys()):
         return redirect(url_for('index'))
     if request.method == "POST":
         if request.form['submit'] == "Create Venue":
@@ -407,13 +437,13 @@ def dashboard():
     venue_list = Venue.query.all()
     shows_list = Shows.query.all()
     movies_list = Movie.query.all()
-    return render_template('dashboard.html', userData=userData, admin=True, venues=venue_list, shows=shows_list,
+    return render_template('dashboard.html', userData=session['admin'], admin=True, venues=venue_list, shows=shows_list,
                            movies=movies_list)
 
 
 @app.route('/admin/dashboard/venue/<response>/<int:venue_id>', methods=['GET', 'POST'])
 def venueRequest(response, venue_id):
-    if not admin_user:
+    if not ('admin' in session.keys()):
         return redirect(url_for('index'))
     if request.method == "GET":
         if response == "delete":
@@ -441,7 +471,7 @@ def venueRequest(response, venue_id):
 
 @app.route('/admin/dashboard/show/<response>/<int:show_id>', methods=['GET', 'POST'])
 def showRequest(response, show_id):
-    if not admin_user:
+    if not ('admin' in session.keys()):
         return redirect(url_for('index'))
     if request.method == "GET":
         if response == "delete":
@@ -484,4 +514,5 @@ def showRequest(response, show_id):
 
 
 if __name__ == '__main__':
+    delete_qrcodes()
     app.run(debug=True)
