@@ -3,7 +3,6 @@ import re
 from flask import Flask, redirect, render_template, request, url_for, abort, Response
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
 # from flask_bcrypt
 
 app = Flask(__name__)
@@ -37,7 +36,7 @@ class Movie(db.Model):
                f" language='{self.language}, image_src='{self.image_src}')"
 
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     email = db.Column(db.String(50), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
