@@ -205,8 +205,8 @@ def login():
             "email": user.email,
             "language": user.language
         }
-
-        return redirect(url_for('index'))
+        lang_to_state = {"Eng": "Bangalore", "Hin": "Bangalore", "Tam": "Chennai", "Mal": "Kochi"}
+        return redirect(url_for('indexLang', loc=lang_to_state[session['user']["language"]]))
     return render_template('login.html')
 
 
@@ -215,6 +215,8 @@ def login():
 def logout():
     if 'user' in session:
         session.pop('user', default=None)
+    if 'admin' in session:
+        session.pop('admin', default=None)
     return redirect(url_for('index'))
 
 
@@ -233,7 +235,7 @@ def signup():
         has_lowercase = False
         has_digit = False
         has_special = False
-        allowed_special = ['!', '@', '#', '$', '%']
+        allowed_Schars = ['!', '@', '#', '$', '%']
 
         if not bool(re.fullmatch(r'^[\w.]+@[\w.]+[.]+[\w.]+', email)):
             return render_template('signup.html', error='Invalid Email')
@@ -250,7 +252,7 @@ def signup():
                 has_lowercase = True
             elif char.isdigit():
                 has_digit = True
-            elif char in allowed_special:
+            elif char in allowed_Schars:
                 has_special = True
         if not (has_uppercase and has_lowercase and has_digit and has_special):
             return render_template('signup.html',
