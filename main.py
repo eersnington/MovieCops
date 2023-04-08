@@ -519,6 +519,7 @@ def showRequest(response, show_id):
 
     return redirect(url_for('dashboard'))
 
+
 # MAIN FUNCTION
 if __name__ == '__main__':
     t = threading.Thread(target=interval_loop, args=(5,))
