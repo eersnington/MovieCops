@@ -446,6 +446,7 @@ def dashboard():
                            movies=movies_list)
 
 
+# ADMIN DASHBOARD (EDIT AND DELETE VENUES)
 @app.route('/admin/dashboard/venue/<response>/<int:venue_id>', methods=['GET', 'POST'])
 def venueRequest(response, venue_id):
     if not ('admin' in session.keys()):
@@ -474,6 +475,7 @@ def venueRequest(response, venue_id):
     return redirect(url_for('dashboard'))
 
 
+# ADMIN DASHBOARD (EDIT AND DELETE SHOWS)
 @app.route('/admin/dashboard/show/<response>/<int:show_id>', methods=['GET', 'POST'])
 def showRequest(response, show_id):
     if not ('admin' in session.keys()):
@@ -517,7 +519,7 @@ def showRequest(response, show_id):
 
     return redirect(url_for('dashboard'))
 
-
+# MAIN FUNCTION
 if __name__ == '__main__':
     t = threading.Thread(target=interval_loop, args=(5,))
     t.daemon = True
