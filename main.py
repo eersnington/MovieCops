@@ -1,4 +1,5 @@
 import os
+import re
 import threading
 import time
 
@@ -234,6 +235,8 @@ def signup():
         has_special = False
         allowed_special = ['!', '@', '#', '$', '%']
 
+        if not bool(re.fullmatch(r'^[\w.]+@[\w.]+[.]+[\w.]+', email)):
+            return render_template('signup.html', error='Invalid Email')
         if check_email:
             return render_template('signup.html', error='Email is already in use')
         if language == 'Select your preferred language':

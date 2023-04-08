@@ -6,6 +6,11 @@
 
 {% block body %}
 <div id="movieCarousel" class="carousel Slider">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="0" class="active"></button>
+    <button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="1"></button>
+    <button type="button" data-bs-target="#movieCarousel" data-bs-slide-to="2"></button>
+  </div>
   <div class="carousel-inner">
     <div class="carousel-item active">
       <img class="w-100" src="{{ url_for('static', filename='images/Slideshow1.jpg') }}" width="1280" height="500" alt="First Slide">
@@ -25,14 +30,6 @@
     <span class="sr-only">Next</span>
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
   </button>
-</div>
-<div class="carousel-inner">
-  <div
-          class="carousel-item active">
-  </div>
-  <div
-          class="carousel-item">
-  </div>
 </div>
 <div>
   <div class="container">
